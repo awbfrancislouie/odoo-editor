@@ -65,6 +65,8 @@ export class OdooEditor {
         dom.oid = 1; // convention: root node is ID 1
         this.dom = this.options.toSanitize ? sanitize(dom) : dom;
         this.resetHistory();
+        window.h = this.history;
+        window.editor = this;
         this.undos = new Map();
         this.redoCount = 0;
 
@@ -220,6 +222,8 @@ export class OdooEditor {
     }
 
     observerApply(destel, records) {
+        window.h = this.history;
+        console.log('records:', records);
         for (let record of records) {
             switch (record.type) {
                 case 'characterData': {
@@ -1190,14 +1194,15 @@ export class OdooEditor {
             if (this._applyCommand('indentList', ev.shiftKey ? 'outdent' : 'indent')) {
                 ev.preventDefault();
             }
+        } else if (ev.key === 'Z' && ev.ctrlKey) {
+            console.log('redo');
+            // Ctrl-Y
+            ev.preventDefault();
+            this.historyRedo();
         } else if (ev.key === 'z' && ev.ctrlKey) {
             // Ctrl-Z
             ev.preventDefault();
             this.historyUndo();
-        } else if (ev.key === 'y' && ev.ctrlKey) {
-            // Ctrl-Y
-            ev.preventDefault();
-            this.historyRedo();
         }
     }
     /**
